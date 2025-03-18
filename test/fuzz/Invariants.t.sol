@@ -19,7 +19,6 @@ import {HelperConfig} from "../../script/HelperConfig.s.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Handler} from "./Handler.t.sol";
 
-
 contract Invariants is StdInvariant, Test {
     DeployDSC deployer;
     DSCEngine dsce;
@@ -31,11 +30,10 @@ contract Invariants is StdInvariant, Test {
     DecentralizedStableCoin dsc;
     Handler handler;
 
-
     function setUp() external {
         deployer = new DeployDSC();
         (dsc, dsce, config) = deployer.run();
-        (, , weth, wbtc,) = config.activeNetworkConfig();
+        (,, weth, wbtc,) = config.activeNetworkConfig();
         handler = new Handler(dsce, dsc);
         targetContract(address(handler));
     }
@@ -55,7 +53,5 @@ contract Invariants is StdInvariant, Test {
         assert(wethValue + wbtcValue >= totalSupply);
     }
 
-    function invariant_gettersShouldNeverRevert() public view {
-
-    }
+    function invariant_gettersShouldNeverRevert() public view {}
 }
