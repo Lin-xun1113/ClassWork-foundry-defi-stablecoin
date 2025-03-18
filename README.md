@@ -1,66 +1,148 @@
-## Foundry
+# Decentralized Stablecoin (DSC)
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
-Foundry consists of:
+## Project Overview
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+This is a decentralized stablecoin system developed using Solidity and the Foundry framework. The stablecoin has the following characteristics:
 
-## Documentation
+1. **USD-Pegged**: 1 DSC = 1 USD
+2. **Overcollateralized**: The system always maintains an overcollateralized state, where the value of all collateral must exceed the value of all minted DSC
+3. **Algorithmically Stable**: Stability is automatically maintained through smart contracts
+4. **Exogenously Collateralized**: Uses ETH and BTC as collateral
+5. **No Governance**: The system is designed to be minimal, requiring no governance mechanism
+6. **No Fees**: The system does not charge any fees
 
-https://book.getfoundry.sh/
+This project is similar to DAI, but without governance mechanisms, without fees, and backed only by WETH and WBTC as collateral.
 
-## Usage
+## System Architecture
 
-### Build
+The project contains two main contracts:
 
-```shell
-$ forge build
+1. **DecentralizedStableCoin (DSC)**: An ERC20 token implementation representing the stablecoin itself
+2. **DSCEngine**: The core logic contract handling collateral deposits/withdrawals, stablecoin minting and redemption, liquidations, and more
+
+Additionally, the project includes:
+
+- **OracleLib**: Used to interact with Chainlink price feeds, retrieve price data, and check if prices are stale
+- **Fuzz Testing**: Ensures system security and stability under various conditions
+
+## Features
+
+- **Deposit Collateral**: Users can deposit ETH or BTC as collateral
+- **Mint Stablecoin**: Users can mint DSC based on their collateral value
+- **Redeem Collateral**: Users can burn DSC to redeem their collateral
+- **Liquidation Mechanism**: When a user's health factor falls below the threshold, other users can liquidate their position
+- **Price Oracles**: Uses Chainlink price feeds to get real-time price data
+- **Health Factor**: The system monitors users' collateralization ratio through a health factor
+
+## Quick Start
+
+### Prerequisites
+
+- [Foundry](https://book.getfoundry.sh/getting-started/installation)
+- [Git](https://git-scm.com/downloads)
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/foundry-defi-stablecoin.git
+cd foundry-defi-stablecoin
+
+# Install dependencies
+forge install
+
+# Compile contracts
+forge build
 ```
 
-### Test
+### Testing
 
-```shell
-$ forge test
+```bash
+# Run all tests
+forge test
+
+# Run specific tests
+forge test --match-contract DSCEngineTest
+
+# Run fuzz tests
+forge test --match-contract Invariants
 ```
 
-### Format
+### Deployment
 
-```shell
-$ forge fmt
+```bash
+# Deploy to local network
+forge script script/DeployDSC.s.sol --rpc-url http://localhost:8545 --broadcast
+
+# Deploy to Sepolia testnet
+forge script script/DeployDSC.s.sol --rpc-url $SEPOLIA_RPC_URL --private-key $PRIVATE_KEY --broadcast --verify
 ```
 
-### Gas Snapshots
+## Contract Interaction
 
-```shell
-$ forge snapshot
+### Deposit Collateral and Mint DSC
+
+```solidity
+// Deposit collateral
+dscEngine.depositCollateral(tokenCollateralAddress, amountCollateral);
+
+// Mint DSC
+dscEngine.mintDsc(amountDscToMint);
+
+// Deposit collateral and mint DSC in one step
+dscEngine.depositCollateralAndMintDsc(tokenCollateralAddress, amountCollateral, amountDscToMint);
 ```
 
-### Anvil
+### Redeem Collateral
 
-```shell
-$ anvil
+```solidity
+// Redeem collateral
+dscEngine.redeemCollateral(tokenCollateralAddress, amountCollateral);
+
+// Burn DSC and redeem collateral
+dscEngine.redeemCollateralForDsc(tokenCollateralAddress, amountCollateral, amountDscToBurn);
 ```
 
-### Deploy
+### Liquidate Unhealthy Positions
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+```solidity
+dscEngine.liquidate(tokenCollateralAddress, user, debtToCover);
 ```
 
-### Cast
+## Security Considerations
 
-```shell
-$ cast <subcommand>
+- The system is designed to always maintain an overcollateralized state (200%)
+- Uses reentrancy guards to prevent reentrancy attacks
+- Price oracle timeout checks to prevent using stale prices
+- Comprehensive unit tests and fuzz tests to ensure system stability under various conditions
+
+## Project Structure
+
+```
+foundry-defi-stablecoin/
+├── src/                    # Source code
+│   ├── DSCEngine.sol       # Core logic contract
+│   ├── DecentralizedStableCoin.sol  # ERC20 stablecoin implementation
+│   └── libraries/          # Libraries
+│       └── OracleLib.sol   # Oracle library
+├── script/                 # Deployment scripts
+│   ├── DeployDSC.s.sol     # Deployment script
+│   └── HelperConfig.s.sol  # Configuration helper
+├── test/                   # Tests
+│   ├── fuzz/               # Fuzz tests
+│   │   ├── Handler.t.sol   # Fuzz test handler
+│   │   └── Invariants.t.sol # Invariant tests
+│   ├── mocks/              # Mock contracts
+│   └── uint/               # Unit tests
+└── foundry.toml            # Foundry configuration
 ```
 
-### Help
+## Contributing
 
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+Contributions are welcome! Feel free to submit issues or pull requests.
+
+## License
+
+[MIT](LICENSE)
