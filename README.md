@@ -146,3 +146,9 @@ Contributions are welcome! Feel free to submit issues or pull requests.
 ## License
 
 [MIT](LICENSE)
+
+## Acknowledgements
+
+- Thanks to Patrick Collins for guidance through his Solidity course
+- Thanks to IIIu_23 for translating the Solidity course, making it more accessible
+- Thanks to Chainlink for providing price oracle services
